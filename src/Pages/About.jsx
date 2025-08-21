@@ -240,7 +240,7 @@ const AboutPage = () => {
       </div>
 
             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 lg:gap-4 lg:px-0 w-full">
-              <a href="https://www.canva.com/design/DAGuhdtrZOI/jcDEbDZRjVOnZJgJHUoabA/edit?utm_content=DAGuhdtrZOI&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" className="w-full lg:w-auto">
+              <a href="https://drive.google.com/file/d/1RlxbIpEi59MrSZo6-nSumNIETJv1dvaT/view?usp=drive_link" className="w-full lg:w-auto">
               <button 
                 data-aos="fade-up"
                 data-aos-duration="800"
