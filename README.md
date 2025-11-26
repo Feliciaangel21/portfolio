@@ -1,15 +1,15 @@
 # Felicia Angel – Data Scientist Portfolio
 
-👋 Hi! I'm **Felicia Angel**, a data scientist passionate about transforming data into meaningful insights and intelligent solutions. This portfolio showcases some of the projects I've developed in the fields of data analytics, machine learning, and dashboard development.
+Hi! I'm **Felicia Angel**, a data scientist passionate about transforming data into meaningful insights and intelligent solutions. This portfolio showcases some of the projects I've developed in the fields of data analytics, machine learning, and dashboard development.
 
 ## 💡 About This Website
 
 This website serves as a dynamic portfolio of my work and growth as a data scientist. It highlights:
 
-- 📊 Data analytics projects using **Python**, **SQL**, **Tableau**, and **Streamlit**
-- 🤖 Machine learning models for real-world tasks including **classification**, **prediction**, and **image processing**
-- 📚 Certifications and learning journey through programs like **Google Data Analytics** and **Daewoong Internship**
-- ✍️ Blog-style insights and reflections on building data-driven solutions
+- Data analytics projects using **Python**, **SQL**, **Tableau**, and **Streamlit**
+- Machine learning models for real-world tasks including **classification**, **prediction**, and **image processing**
+- Certifications and learning journey through programs like **Google Data Analytics** and **Daewoong Internship**
+- Blog-style insights and reflections on building data-driven solutions
 
 ## 🛠️ Tech Stack
 
@@ -23,7 +23,7 @@ This website serves as a dynamic portfolio of my work and growth as a data scien
 
 The backend is powered by **Supabase**, storing project and certificate data while enabling real-time user interaction (commenting system). All data is safely managed, and no login is required to view or interact with the site.
 
-## 📬 Contact Me
+## Contact Me
 
 - ✉️ Email: **feliciaangel21@gmail.com**
 - 💻 GitHub: [@feliciaangel](https://github.com/feliciaangel)
