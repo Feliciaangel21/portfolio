@@ -29,7 +29,8 @@ const ContactPage = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setIsSubmitting(true);
 
     Swal.fire({
@@ -41,18 +42,51 @@ const ContactPage = () => {
       },
     });
 
-    setTimeout(() => {
+    try {
+      const response = await fetch(
+        "https://formsubmit.co/ajax/feliciaangel21@gmail.com",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            _subject: "New Message from Portfolio Website",
+            _captcha: "false",
+            _template: "table",
+            name: formData.name,
+            email: formData.email,
+            message: formData.message,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+
       Swal.fire({
         title: "Submitted!",
-        text: "Your message has been submitted. Please check your email inbox or FormSubmit activation email.",
+        text: "Your message has been sent. I'll get back to you soon.",
         icon: "success",
         confirmButtonColor: "#6366f1",
         timer: 2500,
         timerProgressBar: true,
       });
 
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      Swal.fire({
+        title: "Something went wrong",
+        text: "Your message could not be sent. Please try again, or email me directly.",
+        icon: "error",
+        confirmButtonColor: "#6366f1",
+      });
+      console.error("Error submitting contact form:", error);
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -97,20 +131,7 @@ const ContactPage = () => {
               <Share2 className="w-10 h-10 text-[#6366f1] opacity-50" />
             </div>
 
-            <form
-              action="https://formsubmit.co/feliciaangel21@gmail.com"
-              method="POST"
-              onSubmit={handleSubmit}
-              className="space-y-6"
-            >
-              <input
-                type="hidden"
-                name="_subject"
-                value="New Message from Portfolio Website"
-              />
-              <input type="hidden" name="_captcha" value="false" />
-              <input type="hidden" name="_template" value="table" />
-
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div
                 data-aos="fade-up"
                 data-aos-delay="100"

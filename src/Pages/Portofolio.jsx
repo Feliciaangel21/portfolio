@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 
 import { supabase } from "../supabase"; 
 
@@ -16,6 +16,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import Certificate from "../components/Certificate";
 import { Code, Award, Boxes } from "lucide-react";
+import { getProjectTags, getAvailableTags, projectHasTag } from "../utils/projectCategory";
 
 
 const ToggleButton = ({ onClick, isShowingMore }) => (
@@ -102,6 +103,34 @@ function a11yProps(index) {
   };
 }
 
+const ALL_PROJECTS = "All";
+
+const CategoryFilter = ({ categories, activeCategory, onSelect }) => (
+  <div className="flex flex-wrap gap-2 mb-6" data-aos="fade-up" data-aos-duration="800">
+    {[ALL_PROJECTS, ...categories].map((category) => (
+      <button
+        key={category}
+        onClick={() => onSelect(category)}
+        className={`
+          px-4 py-1.5
+          text-sm font-medium
+          rounded-full
+          border
+          backdrop-blur-sm
+          transition-all duration-300
+          ${
+            activeCategory === category
+              ? "text-white bg-gradient-to-r from-[#6366f1]/30 to-[#a855f7]/30 border-purple-500/50 shadow-[0_0_15px_-3px_rgba(139,92,246,0.4)]"
+              : "text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20"
+          }
+        `}
+      >
+        {category}
+      </button>
+    ))}
+  </div>
+);
+
 
 const techStacks = [
   // Core Web Dev
@@ -130,8 +159,18 @@ export default function FullWidthTabs() {
   const [certificates, setCertificates] = useState([]);
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [showAllCertificates, setShowAllCertificates] = useState(false);
-  const isMobile = window.innerWidth < 768;
+  const [activeCategory, setActiveCategory] = useState(ALL_PROJECTS);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const initialItems = isMobile ? 4 : 6;
+
+  // Re-checked on resize so widening the window past the breakpoint actually
+  // reveals the extra cards instead of staying stuck at the initial count.
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     AOS.init({
@@ -143,7 +182,7 @@ export default function FullWidthTabs() {
     try {
   
       const [projectsResponse, certificatesResponse] = await Promise.all([
-        supabase.from("projects").select("*").order('id', { ascending: true }),
+        supabase.from("projects").select("*").order('id', { ascending: false }),
         supabase.from("certificates").select("*").order('id', { ascending: true }),
       ]);
       console.log("Fetched projects:", projectsResponse.data);  // << Add this
@@ -199,7 +238,22 @@ export default function FullWidthTabs() {
     }
   }, []);
 
-  const displayedProjects = showAllProjects ? projects : projects.slice(0, initialItems);
+  const handleCategoryChange = useCallback((category) => {
+    setActiveCategory(category);
+    setShowAllProjects(false);
+  }, []);
+
+  const categories = useMemo(() => getAvailableTags(projects), [projects]);
+
+  const filteredProjects = useMemo(
+    () =>
+      activeCategory === ALL_PROJECTS
+        ? projects
+        : projects.filter((project) => projectHasTag(project, activeCategory)),
+    [projects, activeCategory]
+  );
+
+  const displayedProjects = showAllProjects ? filteredProjects : filteredProjects.slice(0, initialItems);
   const displayedCertificates = showAllCertificates ? certificates : certificates.slice(0, initialItems);
 
 
@@ -320,11 +374,20 @@ export default function FullWidthTabs() {
           onChangeIndex={setValue}
         >
           <TabPanel value={value} index={0} dir={theme.direction}>
+            {categories.length > 1 && (
+              <CategoryFilter
+                categories={categories}
+                activeCategory={activeCategory}
+                onSelect={handleCategoryChange}
+              />
+            )}
+
             <div className="container mx-auto flex justify-center items-center overflow-hidden">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-5 items-stretch w-full">
                 {displayedProjects.map((project, index) => (
                   <div
                     key={project.id || index}
+                    className="h-full"
                     data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
                     data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
                   >
@@ -334,12 +397,14 @@ export default function FullWidthTabs() {
                       Description={project.Description}
                       Link={project.Link}
                       id={project.id}
+                      Tags={getProjectTags(project)}
+                      ActiveTag={activeCategory === ALL_PROJECTS ? null : activeCategory}
                     />
                   </div>
                 ))}
               </div>
             </div>
-            {projects.length > initialItems && (
+            {filteredProjects.length > initialItems && (
               <div className="mt-6 w-full flex justify-start">
                 <ToggleButton
                   onClick={() => toggleShowMore('projects')}
