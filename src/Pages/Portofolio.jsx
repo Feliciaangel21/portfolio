@@ -185,9 +185,6 @@ export default function FullWidthTabs() {
         supabase.from("projects").select("*").order('id', { ascending: false }),
         supabase.from("certificates").select("*").order('id', { ascending: true }),
       ]);
-      console.log("Fetched projects:", projectsResponse.data);  // << Add this
- 
-
       // Error handling untuk setiap request
       if (projectsResponse.error) throw projectsResponse.error;
       if (certificatesResponse.error) throw certificatesResponse.error;
@@ -221,8 +218,6 @@ export default function FullWidthTabs() {
         setProjects(JSON.parse(cachedProjects));
         setCertificates(JSON.parse(cachedCertificates));
     }
-    console.log("🚀 useEffect triggered, calling fetchData()");
-    
     fetchData(); // Tetap panggil fetchData untuk sinkronisasi data terbaru
   }, [fetchData]);
 

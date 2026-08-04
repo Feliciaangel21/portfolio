@@ -6,7 +6,6 @@ const CardProject = ({ Img, Title, Description, Link: ProjectLink, id, Tags = []
   // Handle kasus ketika ProjectLink kosong
   const handleLiveDemo = (e) => {
     if (!ProjectLink) {
-      console.log("ProjectLink kosong");
       e.preventDefault();
       alert("Live demo link is not available");
     }
@@ -14,7 +13,6 @@ const CardProject = ({ Img, Title, Description, Link: ProjectLink, id, Tags = []
   
   const handleDetails = (e) => {
     if (!id) {
-      console.log("ID kosong");
       e.preventDefault();
       alert("Project details are not available");
     }
@@ -32,6 +30,8 @@ const CardProject = ({ Img, Title, Description, Link: ProjectLink, id, Tags = []
             <img
               src={Img}
               alt={Title}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
             />
           </div>
