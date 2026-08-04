@@ -240,13 +240,20 @@ const AboutPage = () => {
       </div>
 
             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 lg:gap-4 lg:px-0 w-full">
-              <a href="https://drive.google.com/file/d/1B-03MTwRdhb4s2yktisnJUwnebpu_ttZ/view?usp=drivesdk" className="w-full lg:w-auto">
-              <button 
+              {/* Points at a Drive folder, not a single file, so the CV can be
+                  replaced there without touching this link. */}
+              <a
+                href="https://drive.google.com/drive/folders/145YCdfFjO6zP6_Dh1Bicw3hxD2wg0bqh?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full lg:w-auto"
+              >
+              <button
                 data-aos="fade-up"
                 data-aos-duration="800"
                 className="w-full lg:w-auto sm:px-6 py-2 sm:py-3 rounded-lg bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center lg:justify-start gap-2 shadow-lg hover:shadow-xl "
               >
-                <FileText className="w-4 h-4 sm:w-5 sm:h-5" /> Download CV
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5" /> See CV
               </button>
               </a>
               <a href="#Portofolio" className="w-full lg:w-auto">
