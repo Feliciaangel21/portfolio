@@ -11,6 +11,7 @@ import ProjectDetails from "./components/ProjectDetail";
 import WelcomeScreen from "./Pages/WelcomeScreen";
 import { AnimatePresence } from 'framer-motion';
 import NotFoundPage from "./Pages/404";
+import Admin from "./Pages/Admin";
 
 const LandingPage = ({ showWelcome, setShowWelcome }) => {
   return (
@@ -73,6 +74,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage showWelcome={showWelcome} setShowWelcome={setShowWelcome} />} />
         <Route path="/project/:id" element={<ProjectPageLayout />} />
+        <Route path="/admin" element={<Admin />} />
          <Route path="*" element={<NotFoundPage />} /> {/* Ini route 404 */}
       </Routes>
     </BrowserRouter>
@@ -80,5 +82,4 @@ function App() {
 }
 
 export default App;
-
 

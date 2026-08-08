@@ -5,6 +5,8 @@ import {
   ChevronRight, Layers, Layout, Globe, Package, Cpu, Code,
 } from "lucide-react";
 import Swal from 'sweetalert2';
+import { supabase } from "../supabase";
+import ProjectGallery from "./ProjectGallery";
 
 const TECH_ICONS = {
   React: Globe,
@@ -101,11 +103,10 @@ const ProjectDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const storedProjects = JSON.parse(localStorage.getItem("projects")) || [];
+    const storedProjects = JSON.parse(localStorage.getItem("projects") || "[]");
     const selectedProject = storedProjects.find((p) => String(p.id) === id);
     
     if (selectedProject) {
@@ -116,6 +117,10 @@ const ProjectDetails = () => {
         Github: selectedProject.Github || 'https://github.com/Feliciaangel21',
       };
       setProject(enhancedProject);
+    } else {
+      supabase.from("projects").select("*").eq("id", id).single().then(({ data }) => {
+        if (data) setProject({ ...data, Features: data.Features || [], TechStack: data.TechStack || [], Github: data.Github || "https://github.com/Feliciaangel21" });
+      });
     }
   }, [id]);
 
@@ -223,17 +228,7 @@ const ProjectDetails = () => {
             </div>
 
             <div className="space-y-6 md:space-y-10 animate-slideInRight">
-              <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl group">
-              
-                <div className="absolute inset-0 bg-gradient-to-t from-[#030014] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <img
-                  src={project.Img}
-                  alt={project.Title}
-                  className="w-full  object-cover transform transition-transform duration-700 will-change-transform group-hover:scale-105"
-                  onLoad={() => setIsImageLoaded(true)}
-                />
-                <div className="absolute inset-0 border-2 border-white/0 group-hover:border-white/10 transition-colors duration-300 rounded-2xl" />
-              </div>
+              <ProjectGallery project={project} />
 
               {/* Fitur Utama */}
               <div className="bg-white/[0.02] backdrop-blur-xl rounded-2xl p-8 border border-white/10 space-y-6 hover:border-white/20 transition-colors duration-300 group">

@@ -23,6 +23,10 @@ This website serves as a dynamic portfolio of my work and growth as a data scien
 
 The backend is powered by **Supabase**, storing project and certificate data while enabling real-time user interaction (commenting system). All data is safely managed, and no login is required to view or interact with the site.
 
+## Private image admin
+
+The `/admin` page lets the configured owner upload multiple screenshots to each project. Set `VITE_ADMIN_EMAIL` in `.env`, then run `supabase/migrations/20260809000000_project_images_admin.sql` in the Supabase SQL editor. Create the allowed email/password user in Supabase Authentication. Only use the public anon key in `VITE_SUPABASE_ANON_KEY`; never put a service-role key in this frontend.
+
 ## Contact Me
 
 - ✉️ Email: **feliciaangel21@gmail.com**
