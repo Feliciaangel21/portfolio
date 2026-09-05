@@ -111,9 +111,9 @@ export default {
 				'3xl': ['2.25rem', { lineHeight: '1.15', letterSpacing: '-0.015em' }],
 				'4xl': ['3rem', { lineHeight: '1.08', letterSpacing: '-0.02em' }],
 				'5xl': ['clamp(2.75rem, 6vw, 4.5rem)', { lineHeight: '1.02', letterSpacing: '-0.03em' }],
-				// The stacked name. Capped at 6rem and held at the -0.04em
-				// tracking floor: any tighter and the letters start to touch.
-				'hero': ['clamp(2.5rem, 7.4vw, 6rem)', { lineHeight: '0.92', letterSpacing: '-0.04em' }],
+				// The stacked name. Held at the -0.04em tracking floor: any
+				// tighter and the letters start to touch.
+				'hero': ['clamp(1.875rem, 5.1vw, 3.75rem)', { lineHeight: '0.98', letterSpacing: '-0.04em' }],
 			},
 
 			maxWidth: {

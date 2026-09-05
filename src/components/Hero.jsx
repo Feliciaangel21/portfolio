@@ -43,7 +43,7 @@ const Hero = () => (
             beside both of them when it is wide. Identity is above the
             portrait in the stacking order so the oversized name keeps its
             counters clean where the two overlap. */}
-        <div className="relative z-10 col-span-7 sm:col-span-8 lg:col-span-5 lg:row-start-1">
+        <div className="relative z-10 col-span-8 lg:col-span-5 lg:row-start-1">
           <p style={step(0)} className="font-mono text-meta uppercase text-accent">
             AI Engineer <span className="text-ink-muted">&times;</span> Full-Stack Developer
             <span
@@ -52,16 +52,14 @@ const Hero = () => (
             />
           </p>
 
-          {/* Set in the sans at 600 and broken by hand into three lines: the
+          {/* Set in the sans at 600 and broken by hand into two lines: the
               name is the largest thing on the page, so it sets the left edge
               that everything below aligns to. */}
           <h1
             style={step(1)}
             className="mt-7 font-sans text-hero font-semibold text-ink-deep"
           >
-            Felicia
-            <br />
-            Angel
+            Felicia Angel
             <br />
             Wijaya
           </h1>
@@ -69,9 +67,9 @@ const Hero = () => (
 
         <div
           style={step(2)}
-          className="col-span-5 sm:col-span-4 lg:col-span-6 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:-ml-14 lg:self-center"
+          className="col-span-4 lg:col-span-6 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:-ml-24 lg:self-center"
         >
-          <div className="relative mx-auto w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[420px]">
+          <div className="relative mx-auto w-full max-w-[150px] sm:max-w-[210px] lg:max-w-[330px]">
             {/* Filled panel, rotated and running off the right edge, so the
                 composition is anchored off-centre rather than boxed. */}
             <div
@@ -100,7 +98,7 @@ const Hero = () => (
             <img
               src="/portrait-cut-400.webp"
               srcSet="/portrait-cut-400.webp 400w, /portrait-cut-800.webp 800w"
-              sizes="(min-width: 1024px) 560px, (min-width: 640px) 280px, 150px"
+              sizes="(min-width: 1024px) 330px, (min-width: 640px) 210px, 150px"
               alt="Felicia Angel Wijaya"
               width="818"
               height="922"
@@ -121,7 +119,7 @@ const Hero = () => (
 
             <p
               aria-hidden="true"
-              className="vertical-label absolute right-[1%] top-[32%] hidden font-mono text-meta uppercase tracking-[0.2em] text-paper/60 lg:block"
+              className="vertical-label absolute right-[1%] top-[20%] hidden font-mono text-meta uppercase tracking-[0.15em] text-paper/60 lg:block"
             >
               AI / Software / Product
             </p>
