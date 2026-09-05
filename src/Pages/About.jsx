@@ -1,305 +1,148 @@
-import React, { useEffect, memo, useMemo } from "react"
-import { FileText, Code, Award, Globe, ArrowUpRight, Sparkles, UserCheck } from "lucide-react"
-import AOS from 'aos'
-import 'aos/dist/aos.css'
+import { ArrowUpRight } from "lucide-react";
+import Reveal from "../components/Reveal";
+import ExperienceRow from "../components/ExperienceRow";
+import InstitutionMark from "../components/InstitutionMark";
+import { SectionHeading } from "../components/Section";
+import { usePortfolio } from "../context/usePortfolio";
+import { CV_URL } from "../config";
+import { currentRole, formatSpan } from "../utils/experience";
 
-// Memoized Components
-const Header = memo(() => (
-  <div className="text-center lg:mb-8 mb-2 px-[5%]">
-    <div className="inline-block relative group">
-      <h2 
-        className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#a855f7]" 
-        data-aos="zoom-in-up"
-        data-aos-duration="600"
-      >
-        About Me
-      </h2>
-    </div>
-    <p 
-      className="mt-2 text-gray-400 max-w-2xl mx-auto text-base sm:text-lg flex items-center justify-center gap-2"
-      data-aos="zoom-in-up"
-      data-aos-duration="800"
-    >
-      <Sparkles className="w-5 h-5 text-purple-400" />
-      Curious • Strategic • Creative
-      <Sparkles className="w-5 h-5 text-purple-400" />
-    </p>
-  </div>
-));
+// An editorial profile: a statement, an institutional module, then the
+// experience timeline, which is the substance of the page.
+//
+// This is the one route that runs on crimson rather than the site's sage.
+// Treating it as a section colour keeps the institutional cue honest without
+// putting two rival accents in a single view.
+const About = () => {
+  const { experiences } = usePortfolio();
 
-const ProfileImage = memo(() => (
-  <div className="flex justify-end items-center sm:p-12 sm:py-0 sm:pb-0 p-0 py-2 pb-2">
-    <div 
-      className="relative group" 
-      data-aos="fade-up"
-      data-aos-duration="1000"
-    >
-      {/* Optimized gradient backgrounds with reduced complexity for mobile */}
-      <div className="absolute -inset-6 opacity-[25%] z-0 hidden sm:block">
-        <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-indigo-500 to-purple-600 rounded-full blur-2xl animate-spin-slower" />
-        <div className="absolute inset-0 bg-gradient-to-l from-fuchsia-500 via-rose-500 to-pink-600 rounded-full blur-2xl animate-pulse-slow opacity-50" />
-        <div className="absolute inset-0 bg-gradient-to-t from-blue-600 via-cyan-500 to-teal-400 rounded-full blur-2xl animate-float opacity-50" />
-      </div>
+  const current = currentRole(experiences);
+  const span = formatSpan(experiences);
 
-      <div className="relative">
-        <div className="w-72 h-72 sm:w-80 sm:h-80 rounded-full overflow-hidden shadow-[0_0_40px_rgba(120,119,198,0.3)] transform transition-all duration-700 group-hover:scale-105">
-          <div className="absolute inset-0 border-4 border-white/20 rounded-full z-20 transition-all duration-700 group-hover:border-white/40 group-hover:scale-105" />
-          
-          {/* Optimized overlay effects - disabled on mobile */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 z-10 transition-opacity duration-700 group-hover:opacity-0 hidden sm:block" />
-          <div className="absolute inset-0 bg-gradient-to-t from-purple-500/20 via-transparent to-blue-500/20 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 hidden sm:block" />
-          
-          <img
-            src="/Photo.jpg"
-            alt="Profile"
-            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-2"
-            loading="lazy"
-          />
-
-          {/* Advanced hover effects - desktop only */}
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700 z-20 hidden sm:block">
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-            <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-white/10 to-transparent transform translate-y-full group-hover:-translate-y-full transition-transform duration-1000 delay-100" />
-            <div className="absolute inset-0 rounded-full border-8 border-white/10 scale-0 group-hover:scale-100 transition-transform duration-700 animate-pulse-slow" />
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-));
-
-const StatCard = memo(({ icon: Icon, color, value, label, description, animation }) => (
-  <div data-aos={animation} data-aos-duration={1300} className="relative group">
-    <div className="relative z-10 bg-gray-900/50 backdrop-blur-lg rounded-2xl p-6 border border-white/10 overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl h-full flex flex-col justify-between">
-      <div className={`absolute -z-10 inset-0 bg-gradient-to-br ${color} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-      
-      <div className="flex items-center justify-between mb-4">
-        <div className="w-16 h-16 rounded-full flex items-center justify-center bg-white/10 transition-transform group-hover:rotate-6">
-          <Icon className="w-8 h-8 text-white" />
-        </div>
-        <span 
-          className="text-4xl font-bold text-white"
-          data-aos="fade-up-left"
-          data-aos-duration="1500"
-          data-aos-anchor-placement="top-bottom"
-        >
-          {value}
-        </span>
-      </div>
-
-      <div>
-        <p 
-          className="text-sm uppercase tracking-wider text-gray-300 mb-2"
-          data-aos="fade-up"
-          data-aos-duration="800"
-          data-aos-anchor-placement="top-bottom"
-        >
-          {label}
-        </p>
-        <div className="flex items-center justify-between">
-          <p 
-            className="text-xs text-gray-400"
-            data-aos="fade-up"
-            data-aos-duration="1000"
-            data-aos-anchor-placement="top-bottom"
-          >
-            {description}
-          </p>
-          <ArrowUpRight className="w-4 h-4 text-white/50 group-hover:text-white transition-colors" />
-        </div>
-      </div>
-    </div>
-  </div>
-));
-
-const AboutPage = () => {
-  // Memoized calculations
-  const { totalProjects, totalCertificates, YearExperience } = useMemo(() => {
-    const storedProjects = JSON.parse(localStorage.getItem("projects") || "[]");
-    const storedCertificates = JSON.parse(localStorage.getItem("certificates") || "[]");
-    
-    const startDate = new Date("2021-11-06");
-    const today = new Date();
-    const experience = today.getFullYear() - startDate.getFullYear() -
-      (today < new Date(today.getFullYear(), startDate.getMonth(), startDate.getDate()) ? 1 : 0);
-
-    return {
-      totalProjects: storedProjects.length,
-      totalCertificates: storedCertificates.length,
-      YearExperience: experience
-    };
-  }, []);
-
-  // Optimized AOS initialization
-  useEffect(() => {
-    const initAOS = () => {
-      AOS.init({
-        once: false, 
-      });
-    };
-
-    initAOS();
-    
-    // Debounced resize handler
-    let resizeTimer;
-    const handleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(initAOS, 250);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimer);
-    };
-  }, []);
-
-  // Memoized stats data
-  const statsData = useMemo(() => [
-    {
-      icon: Code,
-      color: "from-[#6366f1] to-[#a855f7]",
-      value: totalProjects,
-      label: "Total Projects",
-      description: "Innovative web solutions crafted",
-      animation: "fade-right",
-    },
-    {
-      icon: Award,
-      color: "from-[#a855f7] to-[#6366f1]",
-      value: totalCertificates,
-      label: "Certificates",
-      description: "Professional skills validated",
-      animation: "fade-up",
-    },
-    {
-      icon: Globe,
-      color: "from-[#6366f1] to-[#a855f7]",
-      value: YearExperience,
-      label: "Years of Study",
-      description: "Continuous learning journey",
-      animation: "fade-left",
-    },
-  ], [totalProjects, totalCertificates, YearExperience]);
+  // Anything countable or datable is derived, so the page cannot fall out of
+  // step with the database the way a written-down figure would.
+  const marks = ["Seoul, KR", "AI Engineering", "Full-stack", span].filter(Boolean);
 
   return (
-    <div
-      className="h-auto pb-[10%] text-white overflow-hidden px-[5%] sm:px-[5%] lg:px-[10%] mt-10 sm-mt-0" 
-      id="About"
-    >
-      <Header />
+    <div className="bg-paper pb-24 pt-20 md:pt-24">
+      <div className="shell">
+        <SectionHeading title="About" />
 
-      <div className="w-full mx-auto pt-8 sm:pt-12 relative">
-        <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div className="space-y-6 text-center lg:text-left">
-            <h2 
-              className="text-3xl sm:text-4xl lg:text-5xl font-bold"
-              data-aos="fade-right"
-              data-aos-duration="1000"
-            >
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#a855f7]">
-                Hello, I'm
-              </span>
-              <span 
-                className="block mt-2 text-gray-200"
-                data-aos="fade-right"
-                data-aos-duration="1300"
-              >
-                Felicia Angel Wijaya
-              </span>
-            </h2>
-            
-            <p 
-              className="text-base sm:text-lg lg:text-xl text-gray-400 leading-relaxed text-justify pb-4 sm:pb-0"
-              data-aos="fade-right"
-              data-aos-duration="1500"
-            >
-             I am a data scientist with a passion for transforming data into actionable insights. Skilled in Python, SQL, Tableau, and Excel, I enjoy helping organizations make data-driven decisions and solve business problems effectively.
+        <div className="grid grid-cols-1 gap-x-10 gap-y-12 lg:grid-cols-12">
+          <Reveal className="lg:col-span-7">
+            <p className="font-display text-2xl leading-[1.28] text-ink md:text-[2.25rem]">
+              I build AI products across the full system, from model and retrieval work
+              to backend services and user-facing products.
             </p>
 
-               {/* Quote Section */}
-      <div 
-        className="relative bg-gradient-to-br from-[#6366f1]/5 via-transparent to-[#a855f7]/5 border border-gradient-to-r border-[#6366f1]/30 rounded-2xl p-4 my-6 backdrop-blur-md shadow-2xl overflow-hidden"
-        data-aos="fade-up"
-        data-aos-duration="1700"
-      >
-        {/* Floating orbs background */}
-        <div className="absolute top-2 right-4 w-16 h-16 bg-gradient-to-r from-[#6366f1]/20 to-[#a855f7]/20 rounded-full blur-xl"></div>
-        <div className="absolute -bottom-4 -left-2 w-12 h-12 bg-gradient-to-r from-[#a855f7]/20 to-[#6366f1]/20 rounded-full blur-lg"></div>
-        
-        {/* Quote icon */}
-        <div className="absolute top-3 left-4 text-[#6366f1] opacity-30">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"/>
-          </svg>
-        </div>
-        
-        <blockquote className="text-gray-300 text-center lg:text-left italic font-medium text-sm relative z-10 pl-6">
-          "Turning data into insights that drive impact."
-        </blockquote>
-      </div>
+            <a
+              href={CV_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group mt-8 inline-flex items-center gap-2 text-sm text-ink transition-colors duration-150 ease-out hover:text-crimson"
+            >
+              <span className="link-underline hover:decoration-crimson">CV</span>
+              <ArrowUpRight className="h-4 w-4 transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
 
-            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 lg:gap-4 lg:px-0 w-full">
-              {/* Points at a Drive folder, not a single file, so the CV can be
-                  replaced there without touching this link. */}
-              <a
-                href="https://drive.google.com/drive/folders/145YCdfFjO6zP6_Dh1Bicw3hxD2wg0bqh?usp=sharing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full lg:w-auto"
-              >
-              <button
-                data-aos="fade-up"
-                data-aos-duration="800"
-                className="w-full lg:w-auto sm:px-6 py-2 sm:py-3 rounded-lg bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center lg:justify-start gap-2 shadow-lg hover:shadow-xl "
-              >
-                <FileText className="w-4 h-4 sm:w-5 sm:h-5" /> CV
-              </button>
-              </a>
-              <a href="#Portofolio" className="w-full lg:w-auto">
-              <button 
-                data-aos="fade-up"
-                data-aos-duration="1000"
-                className="w-full lg:w-auto sm:px-6 py-2 sm:py-3 rounded-lg border border-[#a855f7]/50 text-[#a855f7] font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center lg:justify-start gap-2 hover:bg-[#a855f7]/10 "
-              >
-                <Code className="w-4 h-4 sm:w-5 sm:h-5" /> View Projects
-              </button>
-              </a>
+            <p className="mt-10 border-t border-rule pt-4 font-mono text-meta uppercase tracking-[0.14em] text-ink-muted">
+              {marks.map((mark, index) => (
+                <span key={mark}>
+                  {index > 0 ? (
+                    <span aria-hidden="true" className="mx-2.5 text-crimson-line">
+                      /
+                    </span>
+                  ) : null}
+                  {mark}
+                </span>
+              ))}
+            </p>
+          </Reveal>
+
+          {/* Academic profile and technical identity in one plate: a filing
+              card, not a dashboard tile. Square corners, no shadow, one rule
+              of colour along the top edge. */}
+          <Reveal className="lg:col-span-4 lg:col-start-9" delay={80}>
+            <div className="relative overflow-hidden bg-surface px-6 py-7">
+              <span aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 bg-crimson" />
+
+              {/* The crest again, oversized and bled off the corner, at an
+                  opacity where it reads as paper texture rather than as a
+                  second logo. */}
+              <InstitutionMark
+                organization="Korea University"
+                className="pointer-events-none absolute -bottom-20 -right-16 h-80 w-auto opacity-[0.05]"
+              />
+
+              <dl className="relative">
+                <div>
+                  <dt className="font-mono text-meta uppercase tracking-[0.14em] text-crimson">
+                    Studying
+                  </dt>
+                  <dd className="mt-3 flex items-center gap-2.5">
+                    <InstitutionMark
+                      organization="Korea University"
+                      className="h-7 w-auto shrink-0"
+                    />
+                    <span className="font-display text-xl text-ink">Korea University</span>
+                  </dd>
+                  <dd className="mt-2.5 text-sm text-ink-body">BSc Data Science</dd>
+                  <dd className="text-sm text-ink-body">
+                    Double major in Artificial Intelligence
+                  </dd>
+                </div>
+
+                {current ? (
+                  <div className="mt-6 border-t border-crimson-line pt-5">
+                    <dt className="font-mono text-meta uppercase tracking-[0.14em] text-crimson">
+                      Currently
+                    </dt>
+                    <dd className="mt-3 font-display text-xl text-ink">
+                      {current.organization}
+                    </dd>
+                    <dd className="mt-1.5 text-sm text-ink-body">{current.role}</dd>
+                  </div>
+                ) : null}
+              </dl>
+
+              <p className="relative mt-6 border-t border-rule pt-4 font-mono text-meta uppercase tracking-[0.14em] text-ink-muted">
+                Seoul, South Korea
+              </p>
             </div>
-          </div>
-
-          <ProfileImage />
+          </Reveal>
         </div>
 
-        <a href="#Portofolio">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 cursor-pointer">
-            {statsData.map((stat) => (
-              <StatCard key={stat.label} {...stat} />
-            ))}
-          </div>
-        </a>
-      </div>
+        {experiences.length > 0 ? (
+          <section className="mt-20 md:mt-28">
+            <div className="section-rule mb-8 md:mb-10">
+              <h2 className="text-3xl text-ink md:text-4xl">Experience</h2>
+              <span className="flex-1" />
+              {span ? (
+                <span className="nums shrink-0 text-meta uppercase text-ink-muted">{span}</span>
+              ) : null}
+            </div>
 
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes spin-slower {
-          to { transform: rotate(360deg); }
-        }
-        .animate-bounce-slow {
-          animation: bounce 3s infinite;
-        }
-        .animate-pulse-slow {
-          animation: pulse 3s infinite;
-        }
-        .animate-spin-slower {
-          animation: spin-slower 8s linear infinite;
-        }
-      `}</style>
+            {/* `timeline-rule` draws one hairline down the chronology gutter
+                for the whole list, so it does not break between entries. */}
+            <ul className="timeline-rule relative">
+              {experiences.map((experience, index) => (
+                <Reveal
+                  key={experience.id}
+                  as="li"
+                  delay={Math.min(index, 5) * 60}
+                  className={`group border-t py-8 md:py-10 ${
+                    experience.is_current ? "border-crimson/45" : "border-rule"
+                  }`}
+                >
+                  <ExperienceRow experience={experience} index={index} />
+                </Reveal>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+      </div>
     </div>
   );
 };
 
-export default memo(AboutPage);
+export default About;

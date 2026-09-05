@@ -1,85 +1,141 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import React, { useState } from 'react';
+import { useEffect, lazy, Suspense } from "react";
+import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation, Link } from "react-router-dom";
 import "./index.css";
-import Home from "./Pages/Home";
-import About from "./Pages/About";
-import AnimatedBackground from "./components/Background";
+import { PortfolioProvider } from "./context/PortfolioData";
 import Navbar from "./components/Navbar";
-import Portofolio from "./Pages/Portofolio";
+import Landing from "./Pages/Landing";
+import Projects from "./Pages/Projects";
+import About from "./Pages/About";
+import Stack from "./Pages/Stack";
+import Certificates from "./Pages/Certificates";
 import ContactPage from "./Pages/Contact";
-import ProjectDetails from "./components/ProjectDetail";
-import WelcomeScreen from "./Pages/WelcomeScreen";
-import { AnimatePresence } from 'framer-motion';
 import NotFoundPage from "./Pages/404";
-import Admin from "./Pages/Admin";
 
-const LandingPage = ({ showWelcome, setShowWelcome }) => {
-  return (
-    <>
-      <AnimatePresence mode="wait">
-        {showWelcome && (
-          <WelcomeScreen onLoadingComplete={() => setShowWelcome(false)} />
-        )}
-      </AnimatePresence>
+const ProjectDetails = lazy(() => import("./components/ProjectDetail"));
+const Admin = lazy(() => import("./Pages/Admin"));
 
-      {!showWelcome && (
-        <>
-          <Navbar />
-          <AnimatedBackground />
-          <Home />
-          <About />
-          <Portofolio />
-          <ContactPage />
-          <footer>
-            <center>
-              <hr className="my-3 border-gray-400 opacity-15 sm:mx-auto lg:my-6 text-center" />
-              <span className="block text-sm pb-4 text-gray-500 text-center dark:text-gray-400">
-                © 2025{" "}
-                <a href="" className="hover:underline">
-                  FAW™
-                </a>
-                . All Rights Reserved.
-              </span>
-            </center>
-          </footer>
-        </>
-      )}
-    </>
-  );
+const RouteFallback = () => (
+  <div className="grid min-h-[60vh] place-items-center bg-paper">
+    <p className="font-mono text-meta uppercase text-ink-muted">Loading</p>
+  </div>
+);
+
+// A routed site needs to answer both of these on every navigation: put the
+// reader at the top of the new page, and tell them where they are.
+const RouteEffects = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
+    const titles = {
+      "/": "Felicia Angel, AI Engineer",
+      "/projects": "Projects, Felicia Angel",
+      "/about": "About, Felicia Angel",
+      "/stack": "Stack, Felicia Angel",
+      "/certificates": "Certificates, Felicia Angel",
+      "/contact": "Contact, Felicia Angel",
+    };
+    document.title = titles[pathname] || "Felicia Angel, AI Engineer";
+  }, [pathname]);
+
+  return null;
 };
 
-const ProjectPageLayout = () => (
+const Footer = () => (
+  <footer className="bg-paper">
+    <div className="shell border-t border-rule py-10">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-baseline sm:justify-between">
+        {/* The monogram, not the full lockup: the lockup's wordmark is set
+            with very wide tracking and thin strokes, and stops being legible
+            below about 60px. The mark reads fine small, with the name set in
+            type beside it. */}
+        <div className="flex items-center gap-3">
+          <img
+            src="/brand-mark.png"
+            alt=""
+            width="401"
+            height="338"
+            loading="lazy"
+            className="h-9 w-auto"
+          />
+          <p className="font-mono text-meta uppercase text-ink-muted">Felicia Angel Wijaya</p>
+        </div>
+        <nav aria-label="Footer">
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+            {[
+              { to: "/projects", label: "Projects" },
+              { to: "/stack", label: "Stack" },
+              { to: "/certificates", label: "Certificates" },
+              { to: "/about", label: "About" },
+              { to: "/contact", label: "Contact" },
+            ].map(({ to, label }) => (
+              <li key={to}>
+                <Link
+                  to={to}
+                  className="font-mono text-meta uppercase text-ink-muted transition-colors duration-150 ease-out hover:text-accent"
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <p className="nums text-meta text-ink-muted">{new Date().getFullYear()}</p>
+      </div>
+    </div>
+  </footer>
+);
+
+const SiteLayout = () => (
   <>
-    <ProjectDetails />
-    <footer>
-      <center>
-        <hr className="my-3 border-gray-400 opacity-15 sm:mx-auto lg:my-6 text-center" />
-        <span className="block text-sm pb-4 text-gray-500 text-center dark:text-gray-400">
-          © 2025{" "}
-          <a href="https://flowbite.com/" className="hover:underline">
-            FAW™
-          </a>
-          . All Rights Reserved.
-        </span>
-      </center>
-    </footer>
+    <a
+      href="#main"
+      className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-paper"
+    >
+      Skip to content
+    </a>
+    <Navbar />
+    <main id="main">
+      <Suspense fallback={<RouteFallback />}>
+        <Outlet />
+      </Suspense>
+    </main>
+    <Footer />
   </>
 );
 
 function App() {
-  const [showWelcome, setShowWelcome] = useState(true);
-
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage showWelcome={showWelcome} setShowWelcome={setShowWelcome} />} />
-        <Route path="/project/:id" element={<ProjectPageLayout />} />
-        <Route path="/admin" element={<Admin />} />
-         <Route path="*" element={<NotFoundPage />} /> {/* Ini route 404 */}
-      </Routes>
+      <PortfolioProvider>
+        <RouteEffects />
+        <Routes>
+          <Route element={<SiteLayout />}>
+            <Route path="/" element={<Landing />} />
+            <Route path="/projects" element={<Projects />} />
+            {/* The page used to live at /work. Anything already shared with
+                that link keeps working. */}
+            <Route path="/work" element={<Navigate to="/projects" replace />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/stack" element={<Stack />} />
+            <Route path="/certificates" element={<Certificates />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/project/:id" element={<ProjectDetails />} />
+          </Route>
+          <Route
+            path="/admin"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <Admin />
+              </Suspense>
+            }
+          />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </PortfolioProvider>
     </BrowserRouter>
   );
 }
 
 export default App;
-

@@ -33,4 +33,15 @@ const socialMeta = () => ({
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), socialMeta()],
+  build: {
+    rollupOptions: {
+      output: {
+        // React and the router change far less often than the site itself, so
+        // giving them their own chunk keeps them cached across deploys.
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+        },
+      },
+    },
+  },
 })

@@ -1,187 +1,245 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-	font-family: "Poppins", serif;
-	scroll-behavior: smooth;
-	scrollbar-width: thin;
-	scrollbar-color: rgba(99, 102, 241, 0.3) rgba(12, 5, 53, 0.356);
-}
+/* Fonts are loaded from index.html with preconnect rather than @import here:
+   an @import inside CSS blocks rendering until the font CSS resolves. */
 
-html,
-body {
-	overflow-x: hidden;
-	background: #030014;
-	scroll-behavior: smooth !important;
-}
-
-@keyframes blob {
-	0%,
-	100% {
-		transform: translateY(0);
+@layer base {
+	:root {
+		color-scheme: light;
 	}
-	50% {
-		transform: translateY(-20px);
+
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	html {
+		scroll-behavior: smooth;
+		/* Offset for the fixed masthead so anchor targets are not hidden. */
+		scroll-padding-top: 6rem;
+		-webkit-text-size-adjust: 100%;
+	}
+
+	body {
+		margin: 0;
+		background-color: theme('colors.paper.DEFAULT');
+		color: theme('colors.ink.body');
+		font-family: theme('fontFamily.sans');
+		font-size: 1rem;
+		line-height: 1.6;
+		overflow-x: hidden;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		font-feature-settings: "kern" 1;
+	}
+
+	h1, h2, h3, h4 {
+		font-family: theme('fontFamily.display');
+		color: theme('colors.ink.DEFAULT');
+		font-weight: 500;
+		text-wrap: balance;
+	}
+
+	p {
+		text-wrap: pretty;
+	}
+
+	/* Tabular figures everywhere numbers are compared in a column. */
+	.nums {
+		font-family: theme('fontFamily.mono');
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* One visible focus treatment for the whole site. The old build had zero
+	   focus-visible rules, so keyboard users could not see where they were. */
+	:focus-visible {
+		outline: 2px solid theme('colors.accent.DEFAULT');
+		outline-offset: 3px;
+		border-radius: 1px;
+	}
+
+	:focus:not(:focus-visible) {
+		outline: none;
+	}
+
+	::selection {
+		background-color: theme('colors.accent.wash');
+		color: theme('colors.accent.hover');
+	}
+
+	img {
+		max-width: 100%;
+		height: auto;
 	}
 }
 
-.animate-blob {
-	animation: blob 8s infinite;
-}
-
-.animation-delay-2000 {
-	animation-delay: 2s;
-}
-
-.animation-delay-4000 {
-	animation-delay: 4s;
-}
-
-/* Enhanced Custom Scrollbar Styles */
-::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
-	background-color: transparent;
-  }
-  
-  ::-webkit-scrollbar-track {
-	background: rgba(3, 0, 20, 0.4);
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	border: 1px solid rgba(99, 102, 241, 0.1);
-  }
-  
-  ::-webkit-scrollbar-thumb {
-	background: rgba(99, 102, 241, 0.3);
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
-	border-radius: 20px;
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	box-shadow: 
-	  inset 0 0 20px rgba(168, 85, 247, 0.2),
-	  0 0 10px rgba(99, 102, 241, 0.2);
-	transition: all 0.3s ease;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-	background: rgba(99, 102, 241, 0.5);
-	border: 1px solid rgba(168, 85, 247, 0.3);
-	box-shadow: 
-	  inset 0 0 30px rgba(168, 85, 247, 0.3),
-	  0 0 15px rgba(99, 102, 241, 0.3);
-  }
-  
-  /* When scrollbar is in active/clicked state */
-  ::-webkit-scrollbar-thumb:active {
-	background: rgba(99, 102, 241, 0.6);
-	border: 1px solid rgba(168, 85, 247, 0.4);
-	box-shadow: 
-	  inset 0 0 40px rgba(168, 85, 247, 0.4),
-	  0 0 20px rgba(99, 102, 241, 0.4);
-  }
-  
-  ::-webkit-scrollbar-corner {
-	background: transparent;
-  }
-
-  [data-aos] {
-	will-change: transform, opacity !important;
-  }
-
-
-
- @keyframes shine {
-  from {
-	     left: -100%;
-  }
-	  to {
-	    left: 200%;
-	   }
-	 }
-	 .animate-shine {
-   animation: shine 1.5s ease-in-out infinite;
- }
-
-  
-/*   @media (prefers-color-scheme: dark) {
-	::-webkit-scrollbar-track {
-	  background: rgba(3, 0, 20, 0.6);
+@layer components {
+	/* The page measure. Every section uses this so the left edge is a
+	   continuous line down the whole document. */
+	.shell {
+		width: 100%;
+		max-width: theme('maxWidth.page');
+		margin-inline: auto;
+		padding-inline: 1.5rem;
 	}
-  } */
 
+	@media (min-width: 768px) {
+		.shell {
+			padding-inline: 2.5rem;
+		}
+	}
 
-/* 
-  .container {
-	width: 100%;
-	height: 100%;
-  }
-  
-  .main > div {
-	position: absolute;
-	will-change: transform;
-	border-radius: 50%;
-	background: lightcoral;
-	box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
-	opacity: 0.6;
-  }
-  
-  .main > div:nth-child(1) {
-	width: 60px;
-	height: 60px;
-  }
-  
-  .main > div:nth-child(2) {
-	width: 125px;
-	height: 125px;
-  }
-  
-  .main > div:nth-child(3) {
-	width: 75px;
-	height: 75px;
-  }
-  
-  .main > div::after {
-	content: '';
-	position: absolute;
-	top: 20px;
-	left: 20px;
-	width: 20px;
-	height: 20px;
-	border-radius: 50%;
-	background: rgba(255, 0, 0, 0.8);
-  }
-  
-  .main > div:nth-child(2)::after {
-	top: 35px;
-	left: 35px;
-	width: 35px;
-	height: 35px;
-  }
-  
-  .main > div:nth-child(3)::after {
-	top: 25px;
-	left: 25px;
-	width: 25px;
-	height: 25px;
-  }
-  
-  .main {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	filter: url('#blob');
-	overflow: hidden;
-	background: transparent;
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	cursor: default;
-  } */
+	/* Section label: small caps mono, sitting on a hairline. Used once per
+	   section as structure, not as decoration on every block. */
+	/* Just the row now. The heavy ink rule that used to sit above every
+	   heading has gone; the heading's own size opens the section. The
+	   subheading variant keeps a hairline, since it divides rather than
+	   opens. */
+	.section-rule {
+		display: flex;
+		align-items: baseline;
+		gap: 1rem;
+	}
+
+	.section-rule--sub {
+		padding-top: 0.75rem;
+		border-top: 1px solid theme('colors.rule.DEFAULT');
+	}
+
+	/* Marquee: the strip is masked at both edges so items dissolve into the
+	   page instead of being clipped by a hard boundary. */
+	.marquee {
+		-webkit-mask-image: linear-gradient(
+			to right, transparent, #000 10%, #000 90%, transparent
+		);
+		mask-image: linear-gradient(
+			to right, transparent, #000 10%, #000 90%, transparent
+		);
+	}
+
+	.marquee:hover .marquee-track,
+	.marquee:focus-within .marquee-track {
+		animation-play-state: paused;
+	}
+
+	/* Hero only. A pale engineering grid, faded out with a mask so it never
+	   reaches an edge and reads as paper texture rather than as a table. */
+	.hero-grid {
+		background-image:
+			repeating-linear-gradient(
+				to right, theme('colors.rule.DEFAULT') 0 1px, transparent 1px 5.5rem
+			),
+			repeating-linear-gradient(
+				to bottom, theme('colors.rule.DEFAULT') 0 1px, transparent 1px 5.5rem
+			);
+		-webkit-mask-image: radial-gradient(115% 85% at 68% 34%, #000 12%, transparent 72%);
+		mask-image: radial-gradient(115% 85% at 68% 34%, #000 12%, transparent 72%);
+	}
+
+	/* The stack panel scrolls its own contents, so it gets a scrollbar sized
+	   and toned to sit quietly on the panel rather than the browser default. */
+	.terminal-scroll {
+		scrollbar-width: thin;
+		scrollbar-color: theme('colors.ink.muted') transparent;
+	}
+
+	.terminal-scroll::-webkit-scrollbar {
+		width: 10px;
+	}
+
+	.terminal-scroll::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.terminal-scroll::-webkit-scrollbar-thumb {
+		background-color: theme('colors.ink.muted');
+		border: 3px solid transparent;
+		background-clip: content-box;
+		border-radius: 999px;
+	}
+
+	/* Set as a class rather than an arbitrary property so the rotation stays
+	   in one place and can be reasoned about alongside the mask above. */
+	.vertical-label {
+		writing-mode: vertical-rl;
+		text-orientation: mixed;
+	}
+
+	/* A technology mark drawn through a mask, so every logo takes the site's
+	   ink colour rather than arriving in its own brand colour. */
+	.tech-mark {
+		background-color: currentColor;
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		mask-size: contain;
+	}
+
+	/* The experience list draws one continuous hairline down the first
+	   gutter, so the chronology rail reads as a column instead of three
+	   stacked labels. The offset is the exact centre of the gutter between
+	   column 3 and column 4 of a twelve column grid with a 1.25rem gap:
+	   three tracks plus two and a half gaps works out to 25% - gap/4. It is
+	   drawn on the list rather than per row so it does not break at the
+	   padding between entries. */
+	@media (min-width: 768px) {
+		.timeline-rule::before {
+			content: "";
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: calc(25% - 0.3125rem);
+			width: 1px;
+			background-color: theme('colors.rule.DEFAULT');
+			z-index: 1;
+		}
+	}
+
+	.link-underline {
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.2em;
+		text-decoration-color: theme('colors.rule.DEFAULT');
+		transition: text-decoration-color 160ms theme('transitionTimingFunction.out');
+	}
+
+	.link-underline:hover {
+		text-decoration-color: theme('colors.accent.DEFAULT');
+	}
+}
+
+/* Reduced motion is mandatory, not optional. Everything that moves is either
+   turned off or reduced to a crossfade. Opacity is kept where it carries
+   meaning (a reveal still needs to end up visible). */
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	/* Static, scrollable version of the marquee: no travel, no mask fade
+	   implying movement, and the row can be panned by hand instead. */
+	.marquee {
+		overflow-x: auto;
+		-webkit-mask-image: none;
+		mask-image: none;
+	}
+
+	.marquee-track {
+		animation: none !important;
+		transform: none !important;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

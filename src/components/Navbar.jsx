@@ -1,174 +1,146 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
+const navItems = [
+  { to: "/projects", label: "Projects" },
+  { to: "/stack", label: "Stack" },
+  { to: "/certificates", label: "Certificates" },
+  { to: "/about", label: "About" },
+  { to: "/contact", label: "Contact" },
+];
+
 const Navbar = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
-    const [activeSection, setActiveSection] = useState("Home");
-    
-    const navItems = [
-        { href: "#Home", label: "Home" },
-        { href: "#About", label: "About" },
-        { href: "#Portofolio", label: "Portofolio" },
-        { href: "#Contact", label: "Contact" },
-    ];
+  const [isOpen, setIsOpen] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const sentinelRef = useRef(null);
+  const { pathname } = useLocation();
 
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
-            const sections = navItems.map(item => {
-                const section = document.querySelector(item.href);
-                if (section) {
-                    return {
-                        id: item.href.replace("#", ""),
-                        offset: section.offsetTop - 550,
-                        height: section.offsetHeight
-                    };
-                }
-                return null;
-            }).filter(Boolean);
+  // IntersectionObserver rather than a scroll listener: it does the same job
+  // without running layout-reading code on every scroll event.
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => setPinned(!entry.isIntersecting), {
+      threshold: 0,
+    });
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, []);
 
-            const currentPosition = window.scrollY;
-            const active = sections.find(section => 
-                currentPosition >= section.offset && 
-                currentPosition < section.offset + section.height
-            );
+  // Close the mobile sheet whenever the route changes, otherwise it stays open
+  // over the page the reader just navigated to.
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
-            if (active) {
-                setActiveSection(active.id);
-            }
-        };
-
-        window.addEventListener("scroll", handleScroll);
-        handleScroll();
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
-
-    useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'unset';
-        }
-    }, [isOpen]);
-
-    const scrollToSection = (e, href) => {
-        e.preventDefault();
-        const section = document.querySelector(href);
-        if (section) {
-            const top = section.offsetTop - 100;
-            window.scrollTo({
-                top: top,
-                behavior: "smooth"
-            });
-        }
-        setIsOpen(false);
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
     };
+  }, [isOpen]);
 
-    return (
-        <nav
-            className={`fixed w-full top-0 z-50 transition-all duration-500 ${
-                isOpen
-                    ? "bg-[#030014]"
-                    : scrolled
-                    ? "bg-[#030014]/50 backdrop-blur-xl"
-                    : "bg-transparent"
-            }`}
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (event) => event.key === "Escape" && setIsOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen]);
+
+  const linkClass = ({ isActive }) =>
+    `font-mono text-meta uppercase transition-colors duration-150 ease-out ${
+      isActive ? "text-accent" : "text-ink-muted hover:text-ink"
+    }`;
+
+  return (
+    <>
+      <div ref={sentinelRef} aria-hidden="true" className="absolute top-0 h-px w-full" />
+
+      <header
+        className={`fixed inset-x-0 top-0 z-40 border-b border-rule bg-paper/90 backdrop-blur-[2px] transition-shadow duration-200 ease-out ${
+          pinned ? "shadow-nav" : ""
+        }`}
+      >
+        <div className="shell flex h-16 items-center justify-between">
+          {/* The monogram, drawn through a mask so it takes the current text
+              colour and picks up the same hover and current-page states as
+              the rest of the nav. It needs about 36px: below roughly 30 the
+              orbit and the sparkle lose their hairlines and go muddy.
+              `end` so this is only marked current on the landing page itself;
+              without it a NavLink to "/" matches every route below it. */}
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `inline-flex items-center transition-colors duration-150 ease-out ${
+                isActive ? "text-accent" : "text-ink hover:text-accent"
+              }`
+            }
+          >
+            <span
+              aria-hidden="true"
+              className="tech-mark h-9 w-11"
+              style={{
+                WebkitMaskImage: "url(/brand-mark-mask.png)",
+                maskImage: "url(/brand-mark-mask.png)",
+              }}
+            />
+            <span className="sr-only">Home</span>
+          </NavLink>
+
+          <nav aria-label="Primary" className="hidden md:block">
+            <ul className="flex items-center gap-8">
+              {navItems.map((item) => (
+                <li key={item.to}>
+                  <NavLink to={item.to} className={linkClass}>
+                    {item.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <button
+            type="button"
+            onClick={() => setIsOpen((open) => !open)}
+            aria-expanded={isOpen}
+            aria-controls="mobile-nav"
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+            className="-mr-2 grid h-11 w-11 place-items-center text-ink md:hidden"
+          >
+            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </header>
+
+      {isOpen && (
+        <div
+          id="mobile-nav"
+          className="fixed inset-0 z-30 bg-paper pt-16 md:hidden"
+          style={{ animation: "reveal 200ms cubic-bezier(0.23, 1, 0.32, 1) both" }}
         >
-            <div className="mx-auto px-[5%] sm:px-[5%] lg:px-[10%]">
-                <div className="flex items-center justify-between h-16">
-                    {/* Logo */}
-                    <div className="flex-shrink-0">
-                        <a
-                            href="#Home"
-                            onClick={(e) => scrollToSection(e, "#Home")}
-                            className="text-xl font-bold bg-gradient-to-r from-[#a855f7] to-[#6366f1] bg-clip-text text-transparent"
-                        >
-                            FAW
-                        </a>
-                    </div>
-        
-                    {/* Desktop Navigation */}
-                    <div className="hidden md:block">
-                        <div className="ml-8 flex items-center space-x-8">
-                            {navItems.map((item) => (
-                                <a
-                                    key={item.label}
-                                    href={item.href}
-                                    onClick={(e) => scrollToSection(e, item.href)}
-                                    className="group relative px-1 py-2 text-sm font-medium"
-                                >
-                                    <span
-                                        className={`relative z-10 transition-colors duration-300 ${
-                                            activeSection === item.href.substring(1)
-                                                ? "bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-semibold"
-                                                : "text-[#e2d3fd] group-hover:text-white"
-                                        }`}
-                                    >
-                                        {item.label}
-                                    </span>
-                                    <span
-                                        className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] transform origin-left transition-transform duration-300 ${
-                                            activeSection === item.href.substring(1)
-                                                ? "scale-x-100"
-                                                : "scale-x-0 group-hover:scale-x-100"
-                                        }`}
-                                    />
-                                </a>
-                            ))}
-                        </div>
-                    </div>
-        
-                    {/* Mobile Menu Button */}
-                    <div className="md:hidden">
-                        <button
-                            onClick={() => setIsOpen(!isOpen)}
-                            className={`relative p-2 text-[#e2d3fd] hover:text-white transition-transform duration-300 ease-in-out transform ${
-                                isOpen ? "rotate-90 scale-125" : "rotate-0 scale-100"
-                            }`}
-                        >
-                            {isOpen ? (
-                                <X className="w-6 h-6" />
-                            ) : (
-                                <Menu className="w-6 h-6" />
-                            )}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        
-            {/* Mobile Menu */}
-            <div
-                className={`md:hidden transition-all duration-300 ease-in-out ${
-                    isOpen
-                        ? "max-h-screen opacity-100"
-                        : "max-h-0 opacity-0 overflow-hidden"
-                }`}
-            >
-                <div className="px-4 py-6 space-y-4">
-                    {navItems.map((item, index) => (
-                        <a
-                            key={item.label}
-                            href={item.href}
-                            onClick={(e) => scrollToSection(e, item.href)}
-                            className={`block px-4 py-3 text-lg font-medium transition-all duration-300 ease ${
-                                activeSection === item.href.substring(1)
-                                    ? "bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-semibold"
-                                    : "text-[#e2d3fd] hover:text-white"
-                            }`}
-                            style={{
-                                transitionDelay: `${index * 100}ms`,
-                                transform: isOpen ? "translateX(0)" : "translateX(50px)",
-                                opacity: isOpen ? 1 : 0,
-                            }}
-                        >
-                            {item.label}
-                        </a>
-                    ))}
-                </div>
-            </div>
-        </nav>
-    );
+          <nav aria-label="Primary" className="shell pt-8">
+            <ul className="divide-y divide-rule border-y border-rule">
+              {navItems.map((item) => (
+                <li key={item.to}>
+                  <NavLink
+                    to={item.to}
+                    className={({ isActive }) =>
+                      `flex items-baseline justify-between py-5 font-display text-2xl ${
+                        isActive ? "text-accent" : "text-ink"
+                      }`
+                    }
+                  >
+                    {item.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      )}
+    </>
+  );
 };
 
 export default Navbar;

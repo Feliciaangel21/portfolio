@@ -3,35 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/jpeg" href="/Photo.jpg" />
+  <!-- The favicon was a cropped headshot, which is unreadable at 32px. The
+       FA monogram is built for this size. -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+  <!-- Fonts: preconnect then a single stylesheet request, so the font CSS is
+       not discovered late the way an @import inside index.css would be. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap"
+  />
+
 
   <!-- Primary Meta Tags -->
-  <title>Felicia Angel – Data Scientist</title>
-  <meta name="title" content="Felicia Angel – Data Scientist" />
-  <meta name="description" content="I am Felicia Angel, a data scientist passionate about turning data into actionable insights using Python, SQL, Tableau, and more. Explore my portfolio and get in touch." />
-  <meta name="keywords" content="Felicia Angel, Data Scientist, Portfolio, Data Science, Machine Learning, Python, SQL, Tableau, Korea University" />
+  <title>Felicia Angel, AI Engineer</title>
+  <meta name="title" content="Felicia Angel, AI Engineer" />
+  <meta name="description" content="Felicia Angel, AI and full-stack engineer. LLM applications, retrieval pipelines, and the products built around them. Selected projects and contact details." />
+  <meta name="keywords" content="Felicia Angel, AI Engineer, Forward Deployed Engineer, Full-Stack Engineer, LLM, RAG, PyTorch, React, TypeScript, Python, Korea University" />
   <meta name="google-site-verification" content="ZYNfZwMUiNwSMF3EMvY85bid2BVvB12uMMRfUNWw75A" />
   <meta name="author" content="Felicia Angel" />
 
   <!-- Open Graph (LinkedIn, Facebook, WhatsApp, Slack) -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Felicia Angel" />
-  <meta property="og:title" content="Felicia Angel – Data Scientist" />
-  <meta property="og:description" content="Data scientist turning data into actionable insights with Python, SQL, machine learning, and dashboards. Explore my projects and get in touch." />
+  <meta property="og:title" content="Felicia Angel, AI Engineer" />
+  <meta property="og:description" content="AI engineer and full-stack developer. LLM applications, retrieval pipelines, and the products built around them. Selected projects and contact details." />
   <meta property="og:url" content="%SITE_URL%/" />
   <meta property="og:image" content="%SITE_URL%/Photo.jpg" />
   <meta property="og:image:alt" content="Felicia Angel" />
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Felicia Angel – Data Scientist" />
-  <meta name="twitter:description" content="Data scientist turning data into actionable insights with Python, SQL, machine learning, and dashboards. Explore my projects and get in touch." />
+  <meta name="twitter:title" content="Felicia Angel, AI Engineer" />
+  <meta name="twitter:description" content="AI engineer and full-stack developer. LLM applications, retrieval pipelines, and the products built around them. Selected projects and contact details." />
   <meta name="twitter:image" content="%SITE_URL%/Photo.jpg" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#030014" />
-  <meta name="msapplication-navbutton-color" content="#030014" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#FBF9F7" />
+  <meta name="msapplication-navbutton-color" content="#FBF9F7" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
   
 </head>

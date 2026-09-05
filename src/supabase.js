@@ -1,11 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config";
 
-// Access environment variables using import.meta.env for Vite
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL; 
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Supabase URL and Anon Key are required. Check your .env file and ensure they are prefixed with VITE_ and the dev server was restarted.");
-}
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Only the admin screens need the full SDK (auth and storage). The public site
+// reads through lib/portfolioApi.js, which is a thin fetch wrapper.
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

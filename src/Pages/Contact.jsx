@@ -1,208 +1,234 @@
-import React, { useState, useEffect } from "react";
-import { Share2, User, Mail, MessageSquare, Send } from "lucide-react";
-import SocialLinks from "../components/SocialLinks";
-import Swal from "sweetalert2";
-import AOS from "aos";
-import "aos/dist/aos.css";
+import { useState } from "react";
+import { ArrowUpRight, Check } from "lucide-react";
+import { SectionHeading } from "../components/Section";
+import { EMAIL, SOCIAL } from "../config";
+
+
+const LINKS = [
+  { label: "Email", value: EMAIL, href: `mailto:${EMAIL}` },
+  {
+    label: "LinkedIn",
+    value: "felicia-angel",
+    href: SOCIAL.linkedin,
+  },
+  { label: "GitHub", value: "Feliciaangel21", href: SOCIAL.github },
+];
+
+const FIELDS = [
+  { name: "name", label: "Name", type: "text", autoComplete: "name" },
+  { name: "email", label: "Email", type: "email", autoComplete: "email" },
+];
+
+const validate = ({ name, email, message }) => {
+  const errors = {};
+  if (!name.trim()) errors.name = "Please enter your name.";
+  if (!email.trim()) errors.email = "Please enter your email address.";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    errors.email = "That email address does not look right.";
+  if (!message.trim()) errors.message = "Please write a message.";
+  return errors;
+};
+
+const EMPTY = { name: "", email: "", message: "" };
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState(EMPTY);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [state, setState] = useState("idle"); // idle | sending | sent | error
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSending = state === "sending";
 
-  useEffect(() => {
-    AOS.init({
-      once: false,
-    });
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    const next = { ...formData, [name]: value };
+    setFormData(next);
+    if (touched[name]) setErrors(validate(next));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  // Validate on blur rather than on every keystroke: correcting someone
+  // halfway through typing their own email address is hostile.
+  const handleBlur = (event) => {
+    setTouched((current) => ({ ...current, [event.target.name]: true }));
+    setErrors(validate(formData));
+  };
 
-    Swal.fire({
-      title: "Sending...",
-      html: "Please wait...",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
+    const nextErrors = validate(formData);
+    setErrors(nextErrors);
+    setTouched({ name: true, email: true, message: true });
+    if (Object.keys(nextErrors).length) return;
+
+    setState("sending");
     try {
-      const response = await fetch(
-        "https://formsubmit.co/ajax/feliciaangel21@gmail.com",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            _subject: "New Message from Portfolio Website",
-            _captcha: "false",
-            _template: "table",
-            name: formData.name,
-            email: formData.email,
-            message: formData.message,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-      }
-
-      Swal.fire({
-        title: "Submitted!",
-        text: "Your message has been sent. I'll get back to you soon.",
-        icon: "success",
-        confirmButtonColor: "#6366f1",
-        timer: 2500,
-        timerProgressBar: true,
+      const response = await fetch(`https://formsubmit.co/ajax/${EMAIL}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          _subject: "New message from your portfolio",
+          _captcha: "false",
+          _template: "table",
+          ...formData,
+        }),
       });
-
-      setFormData({ name: "", email: "", message: "" });
-    } catch (error) {
-      Swal.fire({
-        title: "Something went wrong",
-        text: "Your message could not be sent. Please try again, or email me directly.",
-        icon: "error",
-        confirmButtonColor: "#6366f1",
-      });
-      console.error("Error submitting contact form:", error);
-    } finally {
-      setIsSubmitting(false);
+      if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+      setFormData(EMPTY);
+      setTouched({});
+      setState("sent");
+    } catch (caught) {
+      console.error("Error submitting contact form:", caught);
+      setErrorMessage(`Could not send. Please email ${EMAIL} directly.`);
+      setState("error");
     }
   };
 
+  const fieldClass = (name) => {
+    const invalid = errors[name] && touched[name];
+    return `w-full border bg-surface px-3.5 py-3 text-base text-ink outline-none transition-colors duration-150 ease-out placeholder:text-ink-muted focus:border-accent focus:bg-paper disabled:opacity-50 ${
+      invalid ? "border-accent" : "border-rule hover:border-ink-muted"
+    }`;
+  };
+
   return (
-    <div className="px-[5%] sm:px-[5%] lg:px-[10%]">
-      <div className="text-center lg:mt-[5%] mt-10 mb-2 sm:px-0 px-[5%]">
-        <h2
-          data-aos="fade-down"
-          data-aos-duration="1000"
-          className="inline-block text-3xl md:text-5xl font-bold text-center mx-auto text-transparent bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#a855f7]"
-        >
-          <span
-            style={{
-              color: "#6366f1",
-              backgroundImage:
-                "linear-gradient(45deg, #6366f1 10%, #a855f7 93%)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Contact Me
-          </span>
-        </h2>
+    <div className="bg-paper pb-24 pt-20 md:pt-24">
+      <div className="shell">
+        <SectionHeading title="Contact" />
 
-        <p
-          data-aos="fade-up"
-          data-aos-duration="1100"
-          className="text-slate-400 max-w-2xl mx-auto text-sm md:text-base mt-2"
-        >
-          Have a question? Send me a message and I’ll get back to you soon.
-        </p>
-      </div>
-
-      <div
-        className="h-auto py-10 flex items-center justify-center 2xl:pr-[3.1%] lg:pr-[3.8%] md:px-0"
-        id="Contact"
-      >
-        <div className="container px-[1%]">
-          <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl p-5 py-10 sm:p-10 transform transition-all duration-500 hover:shadow-[#6366f1]/10">
-            <div className="flex justify-between items-start mb-8">
-              <div></div>
-              <Share2 className="w-10 h-10 text-[#6366f1] opacity-50" />
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div
-                data-aos="fade-up"
-                data-aos-delay="100"
-                className="relative group"
-              >
-                <User className="absolute left-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-[#6366f1] transition-colors" />
-
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Your Name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  required
-                  className="w-full p-4 pl-12 bg-white/10 rounded-xl border border-white/20 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-[#6366f1]/30 transition-all duration-300 hover:border-[#6366f1]/30 disabled:opacity-50"
-                />
+        <div className="grid grid-cols-1 gap-x-10 gap-y-12 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            {/* A sent message is the single outcome this page exists for, so it
+                replaces the form rather than being announced by a small grey
+                line beside the button. */}
+            {state === "sent" ? (
+              <div className="border border-rule bg-surface p-8">
+                <span className="grid h-10 w-10 place-items-center border border-accent text-accent">
+                  <Check className="h-5 w-5" />
+                </span>
+                <h3 className="mt-5 text-2xl text-ink">Message sent</h3>
+                <p className="mt-3 max-w-prose text-ink-body">
+                  Thanks for getting in touch. I will reply to the address you gave as
+                  soon as I can.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setState("idle")}
+                  className="link-underline mt-6 text-sm text-ink-body transition-colors duration-150 ease-out hover:text-accent"
+                >
+                  Send another message
+                </button>
               </div>
+            ) : (
+              <form onSubmit={handleSubmit} noValidate>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  {FIELDS.map(({ name, label, type, autoComplete }) => (
+                    <div key={name}>
+                      {/* Label above the input, never a placeholder standing in
+                          for one: placeholders vanish the moment you type. */}
+                      <label
+                        htmlFor={name}
+                        className="mb-2 block font-mono text-meta uppercase text-ink"
+                      >
+                        {label}
+                      </label>
+                      <input
+                        id={name}
+                        name={name}
+                        type={type}
+                        autoComplete={autoComplete}
+                        value={formData[name]}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        disabled={isSending}
+                        aria-invalid={Boolean(errors[name] && touched[name])}
+                        aria-describedby={
+                          errors[name] && touched[name] ? `${name}-error` : undefined
+                        }
+                        className={fieldClass(name)}
+                      />
+                      {errors[name] && touched[name] ? (
+                        <p id={`${name}-error`} className="mt-2 text-sm text-accent">
+                          {errors[name]}
+                        </p>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
 
-              <div
-                data-aos="fade-up"
-                data-aos-delay="200"
-                className="relative group"
-              >
-                <Mail className="absolute left-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-[#6366f1] transition-colors" />
+                <div className="mt-5">
+                  <label
+                    htmlFor="message"
+                    className="mb-2 block font-mono text-meta uppercase text-ink"
+                  >
+                    Message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows="7"
+                    value={formData.message}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={isSending}
+                    aria-invalid={Boolean(errors.message && touched.message)}
+                    aria-describedby={
+                      errors.message && touched.message ? "message-error" : undefined
+                    }
+                    className={`${fieldClass("message")} resize-y leading-relaxed`}
+                  />
+                  {errors.message && touched.message ? (
+                    <p id="message-error" className="mt-2 text-sm text-accent">
+                      {errors.message}
+                    </p>
+                  ) : null}
+                </div>
 
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Your Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  required
-                  className="w-full p-4 pl-12 bg-white/10 rounded-xl border border-white/20 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-[#6366f1]/30 transition-all duration-300 hover:border-[#6366f1]/30 disabled:opacity-50"
-                />
-              </div>
+                <div className="mt-6 flex flex-wrap items-center gap-4">
+                  <button
+                    type="submit"
+                    disabled={isSending}
+                    className="bg-ink px-6 py-3 text-sm text-paper transition-colors duration-150 ease-out hover:bg-accent active:scale-[0.98] disabled:opacity-50"
+                  >
+                    {isSending ? "Sending" : "Send message"}
+                  </button>
+                  <p role="status" aria-live="polite" className="text-sm text-accent">
+                    {state === "error" ? errorMessage : ""}
+                  </p>
+                </div>
+              </form>
+            )}
+          </div>
 
-              <div
-                data-aos="fade-up"
-                data-aos-delay="300"
-                className="relative group"
-              >
-                <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-[#6366f1] transition-colors" />
-
-                <textarea
-                  name="message"
-                  placeholder="Your Message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  required
-                  className="w-full resize-none p-4 pl-12 bg-white/10 rounded-xl border border-white/20 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-[#6366f1]/30 transition-all duration-300 hover:border-[#6366f1]/30 h-[9.9rem] disabled:opacity-50"
-                />
-              </div>
-
-              <button
-                data-aos="fade-up"
-                data-aos-delay="400"
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white py-4 rounded-xl font-semibold transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[#6366f1]/20 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-              >
-                <Send className="w-5 h-5" />
-                {isSubmitting ? "Sending..." : "Send Message"}
-              </button>
-            </form>
-
-            <div className="mt-10 pt-6 border-t border-white/10 flex justify-center space-x-6">
-              <SocialLinks />
-            </div>
+          <div className="lg:col-span-4 lg:col-start-9">
+            <h3 className="font-mono text-meta uppercase text-ink">Direct</h3>
+            <ul className="mt-4 border-t border-rule">
+              {LINKS.map(({ label, value, href }) => {
+                const external = !href.startsWith("mailto:");
+                return (
+                  <li key={label} className="border-b border-rule">
+                    <a
+                      href={href}
+                      target={external ? "_blank" : undefined}
+                      rel={external ? "noopener noreferrer" : undefined}
+                      className="group flex items-baseline justify-between gap-4 py-3.5"
+                    >
+                      <span className="font-mono text-meta uppercase text-ink-muted transition-colors duration-150 ease-out group-hover:text-accent">
+                        {label}
+                      </span>
+                      <span className="flex min-w-0 items-center gap-1.5 text-sm text-ink-body transition-colors duration-150 ease-out group-hover:text-accent">
+                        <span className="truncate">{value}</span>
+                        <ArrowUpRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                      </span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="mt-4 text-meta text-ink-muted">
+              The form reaches the same inbox as the email address above.
+            </p>
           </div>
         </div>
       </div>

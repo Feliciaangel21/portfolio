@@ -1,59 +1,60 @@
-// Project types shown as filter chips in the Portfolio Showcase.
+// Project types shown as filter chips on the projects page.
 //
-// A project can carry several types at once — Ayokost is both an AI/LLM project
-// and a web platform — so filtering matches any tag rather than one bucket.
+// A project can carry several types at once (Ayokost is both a retrieval
+// system and a full-stack product), so filtering matches any tag rather than
+// forcing each project into one bucket.
 //
 // Tags come from the project's `Categories` (array) or `Category` (string, or
 // comma-separated) column in Supabase when either is filled in. Otherwise they
 // are inferred from the project's TechStack and Title using the rules below.
 // Every rule that matches contributes a tag.
+//
+// Ordered by how much weight each carries for an AI engineering role: the
+// chips render in this order, so retrieval and model work lead.
 const TAG_RULES = [
   {
-    label: "Machine Learning",
-    keywords: ["scikit-learn", "sklearn", "xgboost", "statsmodels", "pmdarima", "tf-idf"],
-  },
-  {
-    label: "Deep Learning & CV",
-    keywords: [
-      "pytorch",
-      "tensorflow",
-      "keras",
-      "conformer",
-      "bilstm",
-      "ctc",
-      "cnn",
-      "opencv",
-      "mediapipe",
-      "cvzone",
-      "inksight",
-    ],
-  },
-  {
-    label: "NLP & LLM",
+    label: "LLM & RAG",
     keywords: [
       "rag",
       "llama",
       "groq",
       "faiss",
       "hugging face",
+      "huggingface",
       "sentence transformer",
-      "tf-idf",
+      "langchain",
+      "openai",
+      "anthropic",
+      "embedding",
+      "vector",
+      "prompt",
     ],
   },
   {
-    label: "Forecasting",
-    keywords: ["forecast", "time series", "pmdarima", "statsmodels"],
+    label: "Machine Learning",
+    keywords: [
+      "scikit-learn",
+      "sklearn",
+      "xgboost",
+      "statsmodels",
+      "pmdarima",
+      "tf-idf",
+      "pytorch",
+      "tensorflow",
+      "keras",
+      "conformer",
+      "bilstm",
+      "ctc",
+      "forecast",
+      "time series",
+    ],
   },
   {
-    label: "Data Analysis",
-    keywords: ["pandas", "seaborn", "jupyter", "sql"],
+    label: "Computer Vision",
+    keywords: ["opencv", "mediapipe", "cvzone", "cnn", "yolo", "inksight"],
   },
   {
-    label: "Dashboards",
-    keywords: ["streamlit", "tableau", "folium", "power bi", "looker"],
-  },
-  {
-    label: "Web Development",
+    label: "Full-Stack",
     keywords: [
       "next.js",
       "react",
@@ -62,9 +63,27 @@ const TAG_RULES = [
       "supabase",
       "tailwind",
       "fastapi",
+      "express",
       "html",
       "javascript",
       "uvicorn",
+      "vite",
+    ],
+  },
+  {
+    label: "Data & Analytics",
+    keywords: [
+      "pandas",
+      "numpy",
+      "seaborn",
+      "matplotlib",
+      "jupyter",
+      "sql",
+      "streamlit",
+      "tableau",
+      "folium",
+      "power bi",
+      "looker",
     ],
   },
 ];
@@ -91,8 +110,8 @@ export const getProjectTags = (project) => {
   const explicit = explicitTags(project);
   if (explicit?.length) return explicit;
 
-  // Title is included so intent that never shows up as a library — "Forecasting"
-  // — still gets picked up.
+  // Title is included so intent that never shows up as a library ("Forecasting")
+  // still gets picked up.
   const haystack = [...(project?.TechStack || []), project?.Title || ""]
     .join(" ")
     .toLowerCase();
@@ -120,3 +139,14 @@ export const getAvailableTags = (projects) => {
 
   return ordered;
 };
+
+// Category colour coding. Only the three domains that define the work get a
+// hue; everything else stays neutral, so colour reads as information rather
+// than decoration.
+const TAG_TONES = {
+  "LLM & RAG": "text-accent",
+  "Machine Learning": "text-sea",
+  "Computer Vision": "text-ochre",
+};
+
+export const getTagTone = (tag) => TAG_TONES[tag] || "text-ink-muted";
