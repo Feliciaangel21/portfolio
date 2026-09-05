@@ -129,11 +129,23 @@ const Landing = () => {
                 </div>
               </div>
 
-              <dl className="grid grid-cols-3 lg:col-span-5 lg:col-start-8">
+              {/* Three columns need about 150px each to hold "Certificates"
+                  clear of the next divider, which a phone does not have: the
+                  labels collided and "Years building" wrapped while the other
+                  two did not, so the row read as uneven. Below sm it is a
+                  list of rows instead, label against figure. */}
+              <dl className="grid grid-cols-1 border-t border-rule sm:grid-cols-3 sm:border-t-0 lg:col-span-5 lg:col-start-8">
                 {facts.map(({ value, label }, index) => (
-                  <div key={label} className={index ? "border-l border-rule pl-5" : ""}>
-                    <dd className="nums text-4xl text-accent">{loading && !value ? "" : value}</dd>
-                    <dt className="mt-2 font-mono text-meta uppercase text-ink-muted">{label}</dt>
+                  <div
+                    key={label}
+                    className={`flex items-baseline justify-between gap-4 border-b border-rule py-3 sm:flex-col-reverse sm:items-start sm:gap-2 sm:border-b-0 sm:py-0 ${
+                      index ? "sm:border-l sm:border-rule sm:pl-5" : ""
+                    }`}
+                  >
+                    <dt className="font-mono text-meta uppercase text-ink-muted">{label}</dt>
+                    <dd className="nums text-3xl text-accent sm:text-4xl">
+                      {loading && !value ? "" : value}
+                    </dd>
                   </div>
                 ))}
               </dl>
