@@ -36,8 +36,8 @@ const Landing = () => {
   const featured = projects.slice(0, FEATURED_COUNT);
 
   const facts = [
-    { value: projects.length, label: "Projects" },
-    { value: certificates.length, label: "Certificates" },
+    { value: projects.length, label: "Projects", to: "/projects" },
+    { value: certificates.length, label: "Certificates", to: "/certificates" },
     { value: yearsBuilding(), label: "Years building" },
   ];
 
@@ -119,6 +119,10 @@ const Landing = () => {
                 </p>
                 <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
                   <MoreLink to="/about">More about me</MoreLink>
+                  {/* The only way through to the certificates from here. The
+                      figure beside this row already says how many there are,
+                      so the link just needs to be the door. */}
+                  <MoreLink to="/certificates">Certificates</MoreLink>
                   <a
                     href={`mailto:${EMAIL}`}
                     className="group inline-flex items-center gap-2 font-mono text-meta uppercase text-ink-muted transition-colors duration-150 ease-out hover:text-accent"
@@ -133,22 +137,49 @@ const Landing = () => {
                   clear of the next divider, which a phone does not have: the
                   labels collided and "Years building" wrapped while the other
                   two did not, so the row read as uneven. Below sm it is a
-                  list of rows instead, label against figure. */}
-              <dl className="grid grid-cols-1 border-t border-rule sm:grid-cols-3 sm:border-t-0 lg:col-span-5 lg:col-start-8">
-                {facts.map(({ value, label }, index) => (
-                  <div
-                    key={label}
-                    className={`flex items-baseline justify-between gap-4 border-b border-rule py-3 sm:flex-col-reverse sm:items-start sm:gap-2 sm:border-b-0 sm:py-0 ${
-                      index ? "sm:border-l sm:border-rule sm:pl-5" : ""
-                    }`}
-                  >
-                    <dt className="font-mono text-meta uppercase text-ink-muted">{label}</dt>
-                    <dd className="nums text-3xl text-accent sm:text-4xl">
-                      {loading && !value ? "" : value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
+                  list of rows instead, label against figure.
+
+                  A list rather than a definition list, because two of the
+                  three figures are doors to a page and the whole cell has to
+                  be the target: a <dl> group cannot be wrapped in a link and
+                  stay valid, and the figure alone is under the 44px a thumb
+                  needs. */}
+              <ul className="grid grid-cols-1 border-t border-rule sm:grid-cols-3 sm:border-t-0 lg:col-span-5 lg:col-start-8">
+                {facts.map(({ value, label, to }, index) => {
+                  const cell =
+                    "flex items-baseline justify-between gap-4 py-3 sm:flex-col-reverse sm:items-start sm:gap-2 sm:py-0";
+                  const figure = loading && !value ? "" : value;
+
+                  return (
+                    <li
+                      key={label}
+                      className={`border-b border-rule sm:border-b-0 ${
+                        index ? "sm:border-l sm:border-rule sm:pl-5" : ""
+                      }`}
+                    >
+                      {to ? (
+                        // The label carries the site's underline so the cell
+                        // reads as a link before anyone hovers it.
+                        <Link to={to} className={`group ${cell}`}>
+                          <span className="link-underline font-mono text-meta uppercase text-ink-muted transition-colors duration-150 ease-out group-hover:text-ink">
+                            {label}
+                          </span>
+                          <span className="nums text-3xl text-accent transition-colors duration-150 ease-out group-hover:text-accent-hover sm:text-4xl">
+                            {figure}
+                          </span>
+                        </Link>
+                      ) : (
+                        <div className={cell}>
+                          <span className="font-mono text-meta uppercase text-ink-muted">
+                            {label}
+                          </span>
+                          <span className="nums text-3xl text-accent sm:text-4xl">{figure}</span>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           </Reveal>
         </div>
