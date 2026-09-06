@@ -119,10 +119,6 @@ const Landing = () => {
                 </p>
                 <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
                   <MoreLink to="/about">More about me</MoreLink>
-                  {/* The only way through to the certificates from here. The
-                      figure beside this row already says how many there are,
-                      so the link just needs to be the door. */}
-                  <MoreLink to="/certificates">Certificates</MoreLink>
                   <a
                     href={`mailto:${EMAIL}`}
                     className="group inline-flex items-center gap-2 font-mono text-meta uppercase text-ink-muted transition-colors duration-150 ease-out hover:text-accent"
