@@ -2,7 +2,7 @@ import { memo } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
-import { CV_URL, EMAIL } from "../config";
+import { EMAIL } from "../config";
 
 // Staggered on load rather than on scroll: this block is above the fold, so
 // there is nothing to observe. Short steps, and the global reduced-motion rule
@@ -24,10 +24,16 @@ const Cross = ({ className }) => (
 
 Cross.propTypes = { className: PropTypes.string };
 
+// The CV used to hang off the hero as a link straight out to the file. The
+// About page now covers the same ground in the site's own type, and carries
+// the CV link itself, so the hero points there instead of out.
 const links = [
-  { label: "CV", href: CV_URL, external: true },
+  { label: "Experience", to: "/about" },
   { label: "Email", href: `mailto:${EMAIL}` },
 ];
+
+const secondaryLink =
+  "group inline-flex items-center gap-2 text-ink-muted transition-colors duration-150 ease-out hover:text-accent";
 
 const Hero = () => (
   <section className="relative overflow-hidden bg-paper pb-8 pt-24 md:pb-14 md:pt-28">
@@ -149,17 +155,21 @@ const Hero = () => (
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
             </Link>
 
-            {links.map(({ label, href, external }) => (
-              <a
-                key={label}
-                href={href}
-                {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                className="group inline-flex items-center gap-2 text-ink-muted transition-colors duration-150 ease-out hover:text-accent"
-              >
-                <span className="link-underline">{label}</span>
-                <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </a>
-            ))}
+            {/* A route stays in the site and takes the travelling arrow; only
+                what leaves the page gets the one that points out. */}
+            {links.map(({ label, to, href }) =>
+              to ? (
+                <Link key={label} to={to} className={secondaryLink}>
+                  <span className="link-underline">{label}</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
+                </Link>
+              ) : (
+                <a key={label} href={href} className={secondaryLink}>
+                  <span className="link-underline">{label}</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </a>
+              )
+            )}
           </div>
         </div>
 
