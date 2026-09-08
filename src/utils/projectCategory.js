@@ -4,10 +4,18 @@
 // system and a full-stack product), so filtering matches any tag rather than
 // forcing each project into one bucket.
 //
-// Tags come from the project's `Categories` (array) or `Category` (string, or
-// comma-separated) column in Supabase when either is filled in. Otherwise they
-// are inferred from the project's TechStack and Title using the rules below.
-// Every rule that matches contributes a tag.
+// Tags are inferred from the project's TechStack and Title using the rules
+// below; every rule that matches contributes a tag. A `Categories` (array) or
+// `Category` (comma-separated string) column overrides the inference, but the
+// table has no such column yet, so today every tag is inferred.
+//
+// A keyword only belongs here if it tells the categories apart. pandas, numpy,
+// seaborn, matplotlib and jupyter are in almost every Python project on this
+// site, so keying "Data & Analytics" off them tagged four modelling projects
+// as analytics work: a CNN paper implementation and a gesture-control system
+// were being filed next to an Airbnb EDA notebook. Generic plumbing is left
+// out, and intent that never appears as a library is matched from the title
+// instead.
 //
 // Ordered by how much weight each carries for an AI engineering role: the
 // chips render in this order, so retrieval and model work lead.
@@ -62,10 +70,10 @@ const TAG_RULES = [
       "conformer",
       "bilstm",
       "ctc",
-      "forecast",
-      "time series",
       "whisper",
       "silero",
+      "forecast",
+      "time series",
     ],
   },
   {
@@ -73,36 +81,38 @@ const TAG_RULES = [
     keywords: ["opencv", "mediapipe", "cvzone", "cnn", "yolo", "inksight"],
   },
   {
+    // Server and data layers only. Every front end here is React with
+    // TypeScript, so matching those claimed a full stack for work that is
+    // browser-only; something has to be serving or storing.
     label: "Full-Stack",
     keywords: [
       "next.js",
-      "react",
-      "typescript",
       "node",
-      "supabase",
-      "tailwind",
       "fastapi",
       "express",
-      "html",
-      "javascript",
+      "django",
+      "flask",
       "uvicorn",
-      "vite",
+      "supabase",
+      "postgresql",
+      "oracle",
     ],
   },
   {
+    // Tools someone reaches for when the deliverable is the analysis, plus
+    // the intent words, since "Data Analysis" is a title, not a dependency.
     label: "Data & Analytics",
     keywords: [
-      "pandas",
-      "numpy",
-      "seaborn",
-      "matplotlib",
-      "jupyter",
-      "sql",
       "streamlit",
       "tableau",
-      "folium",
       "power bi",
       "looker",
+      "folium",
+      "sql",
+      "dashboard",
+      "analysis",
+      "analytics",
+      "eda",
     ],
   },
 ];

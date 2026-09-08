@@ -41,7 +41,7 @@ const ProjectDetails = () => {
         <div className="shell max-w-prose">
           <h1 className="text-3xl">That project could not be found.</h1>
           <Link to="/" className="link-underline mt-6 inline-block text-ink-body hover:text-accent">
-            Back to all work
+            Back to all projects
           </Link>
         </div>
       </div>
@@ -68,7 +68,7 @@ const ProjectDetails = () => {
           className="group inline-flex items-center gap-2 font-mono text-meta uppercase text-ink-muted transition-colors duration-150 ease-out hover:text-accent"
         >
           <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:-translate-x-0.5" />
-          All work
+          All projects
         </button>
 
         <header className="mt-10 border-b border-rule pb-10">
