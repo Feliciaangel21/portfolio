@@ -1,14 +1,27 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Trash2, Upload } from "lucide-react";
 import { supabase } from "../supabase";
-import { Panel, Button, Status } from "./admin/AdminUI";
-import { ISSUERS, getIssuer, slugFor } from "../data/certificateIssuers";
+import { Panel, Button, Input, Status } from "./admin/AdminUI";
+import { ISSUERS, getIssuer, getTitle, slugFor } from "../data/certificateIssuers";
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 const STORAGE_MARKER = "/storage/v1/object/public/project-images/";
 
+// A write refused by row level security comes back as success with no rows
+// touched, so every write asks for the affected rows back.
+const BLOCKED =
+  "Nothing changed. Check you are signed in as the admin account and that the table allows this.";
+
+const SORTS = [
+  { id: "newest", label: "Newest first" },
+  { id: "oldest", label: "Oldest first" },
+];
+
 export default function AdminCertificates() {
   const [certificates, setCertificates] = useState([]);
+  const [hasTitle, setHasTitle] = useState(false);
+  const [drafts, setDrafts] = useState({});
+  const [sort, setSort] = useState("newest");
   const [files, setFiles] = useState([]);
   const [issuer, setIssuer] = useState(ISSUERS[0]);
   const [busy, setBusy] = useState(false);
@@ -17,18 +30,33 @@ export default function AdminCertificates() {
 
   const say = (kind, message) => setStatus({ kind, message });
 
+  // Selects every column and reads the names off a real row, so this screen
+  // works whether or not the Title migration has been applied yet.
   const load = useCallback(async () => {
     const { data, error } = await supabase
       .from("certificates")
-      .select("id, Img")
+      .select("*")
       .order("id", { ascending: false });
-    if (error) say("error", error.message);
-    else setCertificates(data || []);
+    if (error) {
+      say("error", error.message);
+      return;
+    }
+    const rows = data || [];
+    setCertificates(rows);
+    setHasTitle(rows.length ? Object.keys(rows[0]).includes("Title") : false);
   }, []);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // There is no date on a certificate, so "newest" means most recently added,
+  // which the identity column already orders.
+  const ordered = useMemo(() => {
+    const rows = [...certificates];
+    rows.sort((a, b) => (sort === "newest" ? b.id - a.id : a.id - b.id));
+    return rows;
+  }, [certificates, sort]);
 
   const upload = async (event) => {
     event.preventDefault();
@@ -74,6 +102,35 @@ export default function AdminCertificates() {
     setBusy(false);
   };
 
+  // Saved on blur rather than behind a per-card button: seventeen cards with
+  // seventeen Save buttons is a lot of furniture for a one-field edit.
+  const saveTitle = async (certificate) => {
+    const next = (drafts[certificate.id] ?? "").trim();
+    setDrafts((current) => {
+      const rest = { ...current };
+      delete rest[certificate.id];
+      return rest;
+    });
+    if (next === (certificate.Title || "").trim()) return;
+
+    setBusy(true);
+    const { data, error } = await supabase
+      .from("certificates")
+      .update({ Title: next || null })
+      .eq("id", certificate.id)
+      .select("id, Title");
+    if (error) say("error", error.message);
+    else if (!data?.length) say("error", BLOCKED);
+    else {
+      setCertificates((current) =>
+        current.map((item) => (item.id === certificate.id ? { ...item, Title: next || null } : item))
+      );
+      localStorage.removeItem("certificates");
+      say("info", next ? "Name saved." : "Name cleared.");
+    }
+    setBusy(false);
+  };
+
   const remove = async (certificate) => {
     setBusy(true);
     const { data, error } = await supabase
@@ -82,12 +139,8 @@ export default function AdminCertificates() {
       .eq("id", certificate.id)
       .select("id");
     if (error) say("error", error.message);
-    else if (!data?.length) {
-      say(
-        "error",
-        "Nothing changed. Check you are signed in as the admin account."
-      );
-    } else {
+    else if (!data?.length) say("error", BLOCKED);
+    else {
       if (certificate.Img?.includes(STORAGE_MARKER)) {
         const path = decodeURIComponent(certificate.Img.split(STORAGE_MARKER)[1]);
         await supabase.storage.from("project-images").remove([path]);
@@ -105,6 +158,25 @@ export default function AdminCertificates() {
       <Panel
         title="Certificates"
         description={`${certificates.length} on the site`}
+        action={
+          <div className="flex shrink-0 border border-rule" role="group" aria-label="Sort order">
+            {SORTS.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setSort(option.id)}
+                aria-pressed={sort === option.id}
+                className={`px-3 py-2 font-mono text-meta uppercase transition-colors duration-150 ease-out ${
+                  sort === option.id
+                    ? "bg-ink text-paper"
+                    : "text-ink-muted hover:bg-surface hover:text-ink"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        }
       >
         <form onSubmit={upload} className="mb-5 flex flex-wrap items-center gap-3">
           <input
@@ -135,10 +207,21 @@ export default function AdminCertificates() {
           </Button>
         </form>
 
+        {certificates.length > 0 && !hasTitle ? (
+          <p className="mb-4 border border-rule bg-surface px-4 py-3 text-sm text-ink-body">
+            Names are not editable yet: the <code>certificates</code> table has no{" "}
+            <code>Title</code> column. Run{" "}
+            <code>supabase/migrations/20260908000000_certificate_title.sql</code> in the SQL
+            editor, then reload. Until then the site falls back to the names written into{" "}
+            <code>src/data/certificateIssuers.js</code>.
+          </p>
+        ) : null}
+
         {certificates.length > 0 ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {certificates.map((certificate) => {
+            {ordered.map((certificate) => {
               const confirming = pendingDelete === certificate.id;
+              const draft = drafts[certificate.id];
               return (
                 <li key={certificate.id} className="group relative border border-rule bg-surface">
                   <img
@@ -147,6 +230,31 @@ export default function AdminCertificates() {
                     loading="lazy"
                     className="aspect-[4/3] w-full bg-paper object-contain"
                   />
+
+                  {hasTitle ? (
+                    <div className="border-t border-rule p-2">
+                      <label className="sr-only" htmlFor={`title-${certificate.id}`}>
+                        Certificate name
+                      </label>
+                      <Input
+                        id={`title-${certificate.id}`}
+                        value={draft ?? certificate.Title ?? ""}
+                        placeholder={getTitle(certificate) || "Untitled"}
+                        disabled={busy}
+                        onChange={(event) =>
+                          setDrafts((current) => ({
+                            ...current,
+                            [certificate.id]: event.target.value,
+                          }))
+                        }
+                        onBlur={() => (draft === undefined ? null : saveTitle(certificate))}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") event.currentTarget.blur();
+                        }}
+                      />
+                    </div>
+                  ) : null}
+
                   {/* Two-step delete: the first click arms it, the second
                       commits. Removing a certificate also deletes the stored
                       file, so it is worth a beat of friction. */}
