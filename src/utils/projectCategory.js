@@ -13,6 +13,21 @@
 // chips render in this order, so retrieval and model work lead.
 const TAG_RULES = [
   {
+    // Agent work leads, since it is the strongest signal for the roles this
+    // portfolio is aimed at. "agent" matches on a leading word boundary, so
+    // it fires on "Agentic" and "Multi-Agent" without catching "urgent".
+    label: "Agentic AI",
+    keywords: [
+      "agentic",
+      "multi-agent",
+      "agent",
+      "negotiation",
+      "autogen",
+      "crewai",
+      "bedrock",
+    ],
+  },
+  {
     label: "LLM & RAG",
     keywords: [
       "rag",
@@ -28,6 +43,8 @@ const TAG_RULES = [
       "embedding",
       "vector",
       "prompt",
+      "qwen",
+      "bge",
     ],
   },
   {
@@ -47,6 +64,8 @@ const TAG_RULES = [
       "ctc",
       "forecast",
       "time series",
+      "whisper",
+      "silero",
     ],
   },
   {
